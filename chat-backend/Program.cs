@@ -7,6 +7,7 @@ builder.Services.AddDbContextPool<AppDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
+app.UseWebSockets();
 app.MapGet("/", () => "INFO: Server works");
 app.MapControllers();
 
