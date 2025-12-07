@@ -19,6 +19,5 @@ namespace ChatApp.Models
         {
             Name = newUser.Name;
         }
-
     }
 }

@@ -9,6 +9,7 @@ namespace ChatApp.Models
         public DbSet<User> Users { get; set; }
         public DbSet<Group> Groups { get; set; }
         public DbSet<GroupUserJoin> GroupUserJoins { get; set; }
+        public DbSet<Message> Messages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -18,6 +19,15 @@ namespace ChatApp.Models
                 .HasOne(g => g.Creator)
                 .WithMany()
                 .HasForeignKey("CreatorId");
+                
+            builder.Entity<Message>()
+                .HasOne(g => g.Sender)
+                .WithMany()
+                .HasForeignKey("SenderId");
+            builder.Entity<Message>()
+                .HasOne(g => g.Group)
+                .WithMany()
+                .HasForeignKey("GroupId");
 
             builder.ApplyConfiguration(new GroupEntityTypeConfiguration());
             builder.ApplyConfiguration(new UserEntityTypeConfiguration());
