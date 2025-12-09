@@ -43,5 +43,4 @@ public class UserController : ControllerBase
 
         return CreatedAtAction(nameof(GetUsers), new { id = user.Id }, new UserDTO(user));
     }
-
 }
