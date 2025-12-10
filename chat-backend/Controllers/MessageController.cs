@@ -43,7 +43,7 @@ public class MessageController : ControllerBase
         {
             message.Group = group;
         }
-        
+
         _appDbContext.Messages.Add(message);
         await _appDbContext.SaveChangesAsync();
 

@@ -36,9 +36,9 @@ public static class ChatGroupService
             _groups.Remove(groupId);
         }
     }
-    
+
     public static async Task Broadcast(NewMessageDTO message)
-    {   
+    {
         var bytes = Encoding.UTF8.GetBytes(message.Text);
         foreach (var userId in _groups[message.GroupId])
         {

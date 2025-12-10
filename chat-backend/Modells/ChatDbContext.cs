@@ -19,7 +19,7 @@ namespace ChatApp.Models
                 .HasOne(g => g.Creator)
                 .WithMany()
                 .HasForeignKey("CreatorId");
-                
+
             builder.Entity<Message>()
                 .HasOne(g => g.Sender)
                 .WithMany()
@@ -62,6 +62,5 @@ namespace ChatApp.Models
                         .HasKey(t => new { t.GroupId, t.UserId })
                 );
         }
-
     }
 }

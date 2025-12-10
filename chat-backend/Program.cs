@@ -8,6 +8,7 @@ builder.Services.AddDbContextPool<AppDbContext>(opt =>
 
 var app = builder.Build();
 app.UseWebSockets();
+app.UseMiddleware<WebSocketMiddleware>();
 app.MapGet("/", () => "INFO: Server works");
 app.MapControllers();
 
