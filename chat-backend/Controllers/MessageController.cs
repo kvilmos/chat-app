@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using ChatApp.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,12 +19,36 @@ public class MessageController : ControllerBase
 
     [Authorize]
     [HttpGet(Name = "GetMessages")]
-    public Task<List<MessageDTO>> GetMessages()
+    public async Task<ActionResult<List<MessageDTO>>> GetMessages()
     {
-        return _appDbContext.Messages
+        var claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList();
+        var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = !string.IsNullOrEmpty(userIdStr) ? int.Parse(userIdStr) : 0;
+        if (userId == 0)
+        {
+            return BadRequest();
+        }
+
+        var groupIdStr = Request.Query["groupId"].ToString();
+        var groupId = !string.IsNullOrEmpty(groupIdStr) ? int.Parse(groupIdStr) : 0;
+        var group = await _appDbContext.GroupUserJoins
+            .AsTracking()
+            .SingleOrDefaultAsync(m => m.UserId == userId && m.GroupId == groupId);
+        if (group == null)
+        {
+            return Unauthorized();
+        }
+
+        var pageStr = Request.Query["page"].ToString();
+        var page = !string.IsNullOrEmpty(pageStr) ? int.Parse(pageStr) : 1;
+
+        return await _appDbContext.Messages
             .Include(m => m.Sender)
             .Include(m => m.Group)
+            .Where(m => m.GroupId == groupId)
             .Select(m => new MessageDTO(m))
+            .Skip(10 * (page - 1))
+            .Take(10 * page)
             .ToListAsync();
     }
 

@@ -37,7 +37,7 @@ public class GroupController : ControllerBase
         var creatorId = !string.IsNullOrEmpty(creatorIdStr) ? int.Parse(creatorIdStr) : 0;
         if (creatorId == 0)
         {
-            return BadRequest();
+            return Unauthorized();
         }
 
         var group = new Group(newGroup);
