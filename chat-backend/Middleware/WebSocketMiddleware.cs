@@ -20,7 +20,9 @@ public class WebSocketMiddleware
         if (ctx.Request.Path != "/chat")
         {
             await _next(ctx);
+            return;
         }
+
         if (!ctx.WebSockets.IsWebSocketRequest)
         {
             ctx.Response.StatusCode = StatusCodes.Status400BadRequest;
@@ -44,7 +46,6 @@ public class WebSocketMiddleware
     private async Task HandleWebSocketConnection(HttpContext ctx, WebSocket webSocket, int userId, int groupId)
     {
         NewMessageDTO joinMsg;
-
         using (var scope = _scopeFactory.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -80,19 +81,16 @@ public class WebSocketMiddleware
             await db.SaveChangesAsync();
 
         }
-        Console.WriteLine("CONNECT");
         ChatGroupService.AddConnection(userId, webSocket);
         ChatGroupService.AddToGroup(userId, groupId);
         await ChatGroupService.Broadcast(joinMsg);
 
         try
         {
-            Console.WriteLine("WAIT");
             await HandleWebSocketRecievingMessage(webSocket, userId, groupId);
         }
         finally
         {
-            Console.WriteLine("CLOSE");
             var exitMsg = new NewMessageDTO
             {
                 Text = $"{userId} left the group",
@@ -103,6 +101,10 @@ public class WebSocketMiddleware
 
             ChatGroupService.RemoveFromGroup(userId, groupId);
             ChatGroupService.RemoveConnection(userId);
+            if (webSocket.State == WebSocketState.Open || webSocket.State == WebSocketState.CloseReceived)
+            {
+                await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Connection closed.", CancellationToken.None);
+            }
         }
     }
 
