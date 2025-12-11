@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using ChatApp.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,39 +17,44 @@ public class GroupController : ControllerBase
         _appDbContext = appDbContext;
     }
 
+    [Authorize]
     [HttpGet(Name = "GetGroups")]
     public Task<List<GroupDTO>> GetGroups()
     {
         return _appDbContext.Groups
-            .Include(t => t.Creator)
-            .Include(t => t.Members)
-            .Select(p => new GroupDTO(p))
+            .Include(g => g.Creator)
+            .Include(g => g.Members)
+            .Select(g => new GroupDTO(g))
             .ToListAsync();
     }
 
+    [Authorize]
     [HttpPost(Name = "CreateGroup")]
     public async Task<ActionResult<GroupDTO>> CreateGroup(NewGroupDTO newGroup)
     {
-        var group = new Group(newGroup);
-        var creator = await _appDbContext.Users
-            .AsTracking()
-            .SingleOrDefaultAsync(t => t.Id == newGroup.CreatorId);
-        if (creator != null)
+        var claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList();
+        var creatorIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var creatorId = !string.IsNullOrEmpty(creatorIdStr) ? int.Parse(creatorIdStr) : 0;
+        if (creatorId == 0)
         {
-            group.Creator = creator;
+            return BadRequest();
         }
 
-        newGroup.UserIds.Add(newGroup.CreatorId);
+        var group = new Group(newGroup);
+        group.CreatorId = creatorId;
+
+        newGroup.UserIds.Add(creatorId);
         foreach (var userId in newGroup.UserIds)
         {
             var user = await _appDbContext.Users
                 .AsTracking()
-                .SingleOrDefaultAsync(t => t.Id == userId);
+                .SingleOrDefaultAsync(u => u.Id == userId);
             if (user != null)
             {
                 group.Members.Add(user);
             }
         }
+
         _appDbContext.Groups.Add(group);
         await _appDbContext.SaveChangesAsync();
 

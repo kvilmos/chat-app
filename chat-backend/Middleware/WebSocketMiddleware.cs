@@ -1,4 +1,5 @@
 using System.Net.WebSockets;
+using System.Security.Claims;
 using System.Text;
 using ChatApp.Models;
 using ChatApp.Services;
@@ -29,9 +30,16 @@ public class WebSocketMiddleware
             return;
         }
 
-        var userIdStr = ctx.Request.Query["userId"].ToString();
-        var groupIdStr = ctx.Request.Query["groupId"].ToString();
+        var claims = ctx.User.Claims.Select(c => new { c.Type, c.Value }).ToList();
+        var userIdStr = ctx.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var userId = !string.IsNullOrEmpty(userIdStr) ? int.Parse(userIdStr) : 0;
+        if (userId == 0)
+        {
+            ctx.Response.StatusCode = StatusCodes.Status400BadRequest;
+            return;
+        }
+
+        var groupIdStr = ctx.Request.Query["groupId"].ToString();
         var groupId = !string.IsNullOrEmpty(groupIdStr) ? int.Parse(groupIdStr) : 0;
         if (userId == 0 || groupId == 0)
         {
@@ -87,7 +95,7 @@ public class WebSocketMiddleware
 
         try
         {
-            await HandleWebSocketRecievingMessage(webSocket, userId, groupId);
+            await HandleWebSocketReceivingMessage(webSocket, userId, groupId);
         }
         finally
         {
@@ -108,7 +116,7 @@ public class WebSocketMiddleware
         }
     }
 
-    private async Task HandleWebSocketRecievingMessage(WebSocket webSocket, int userId, int groupId)
+    private async Task HandleWebSocketReceivingMessage(WebSocket webSocket, int userId, int groupId)
     {
         var buffer = new byte[1024 * 4];
 

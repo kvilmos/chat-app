@@ -20,7 +20,6 @@ namespace ChatApp.Models
         public Group(NewGroupDTO newGroup)
         {
             Name = newGroup.Name;
-            CreatorId = newGroup.CreatorId;
         }
 
         public Group() { }

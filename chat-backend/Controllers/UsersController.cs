@@ -23,9 +23,9 @@ public class UserController : ControllerBase
     }
 
     [HttpGet(Name = "GetUsers")]
-    public async Task<ActionResult<List<UserDTO>>> GetUsers()
+    public Task<List<UserDTO>> GetUsers()
     {
-        return await _appDbContext.Users
+        return _appDbContext.Users
             .Include(u => u.Groups)
             .Select(u => new UserDTO(u))
             .ToListAsync();
@@ -52,16 +52,16 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<UserDTO>> Login(NewUserDTO loginRequest)
+    public async Task<ActionResult<UserDTO>> LoginUser(NewUserDTO loginRequest)
     {
         var user = await _appDbContext.Users
             .AsTracking()
             .SingleOrDefaultAsync(u => u.Name == loginRequest.Name);
-        if (user == null || user.PassowordHash == null)
+        if (user == null || user.PasswordHash == null)
         {
             return BadRequest("User not found");
         }
-        if (new PasswordHasher<User>().VerifyHashedPassword(user, user.PassowordHash, loginRequest.Password)
+        if (new PasswordHasher<User>().VerifyHashedPassword(user, user.PasswordHash, loginRequest.Password)
             == PasswordVerificationResult.Failed)
         {
             return BadRequest("User not found");

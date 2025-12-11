@@ -12,7 +12,7 @@ namespace ChatApp.Models
         [Required]
         public string? Name { get; set; }
         [Required]
-        public string? PassowordHash { get; set; }
+        public string? PasswordHash { get; set; }
 
         public ICollection<Group> Groups { get; set; } = new List<Group>();
         public ICollection<GroupUserJoin> GroupsJoined { get; set; } = new List<GroupUserJoin>();
@@ -22,7 +22,7 @@ namespace ChatApp.Models
         public User(NewUserDTO newUser)
         {
             Name = newUser.Name;
-            PassowordHash = new PasswordHasher<User>().HashPassword(this, newUser.Password);
+            PasswordHash = new PasswordHasher<User>().HashPassword(this, newUser.Password);
         }
     }
 }

@@ -47,19 +47,19 @@ namespace ChatApp.Models
         public void Configure(EntityTypeBuilder<User> entity)
         {
             entity
-                .HasMany(p => p.Groups)
-                .WithMany(p => p.Members)
+                .HasMany(u => u.Groups)
+                .WithMany(g => g.Members)
                 .UsingEntity<GroupUserJoin>(
+                    right => right
+                        .HasOne(gu => gu.Group)
+                        .WithMany(g => g.MembersJoined)
+                        .HasForeignKey(gu => gu.GroupId),
+                    left => left
+                        .HasOne(gu => gu.User)
+                        .WithMany(u => u.GroupsJoined)
+                        .HasForeignKey(gu => gu.UserId),
                     j => j
-                        .HasOne(pt => pt.Group)
-                        .WithMany(t => t.MembersJoined)
-                        .HasForeignKey(pt => pt.UserId),
-                    j => j
-                        .HasOne(pt => pt.User)
-                        .WithMany(p => p.GroupsJoined)
-                        .HasForeignKey(pt => pt.GroupId),
-                    j => j
-                        .HasKey(t => new { t.GroupId, t.UserId })
+                        .HasKey(u => new { u.GroupId, u.UserId })
                 );
         }
     }

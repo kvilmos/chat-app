@@ -1,4 +1,5 @@
 using ChatApp.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,30 +16,32 @@ public class MessageController : ControllerBase
         _appDbContext = appDbContext;
     }
 
+    [Authorize]
     [HttpGet(Name = "GetMessages")]
     public Task<List<MessageDTO>> GetMessages()
     {
         return _appDbContext.Messages
-            .Include(t => t.Sender)
-            .Include(t => t.Group)
-            .Select(p => new MessageDTO(p))
+            .Include(m => m.Sender)
+            .Include(m => m.Group)
+            .Select(m => new MessageDTO(m))
             .ToListAsync();
     }
 
+    [Authorize]
     [HttpPost(Name = "SendMessage")]
     public async Task<ActionResult<UserDTO>> SendMessage(NewMessageDTO newMessage)
     {
         var message = new Message(newMessage);
         var sender = await _appDbContext.Users
             .AsTracking()
-            .SingleOrDefaultAsync(t => t.Id == newMessage.SenderId);
+            .SingleOrDefaultAsync(m => m.Id == newMessage.SenderId);
         if (sender != null)
         {
             message.Sender = sender;
         }
         var group = await _appDbContext.Groups
             .AsTracking()
-            .SingleOrDefaultAsync(t => t.Id == newMessage.GroupId);
+            .SingleOrDefaultAsync(m => m.Id == newMessage.GroupId);
         if (group != null)
         {
             message.Group = group;
