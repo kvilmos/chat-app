@@ -8,6 +8,4 @@ public class NewUserDTO
     public required string Name { get; set; }
     [Required]
     public required string Password { get; set; }
-
-    public ICollection<int> GroupIds { get; set; } = new List<int>();
 }

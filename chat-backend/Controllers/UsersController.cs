@@ -35,16 +35,6 @@ public class UserController : ControllerBase
     public async Task<ActionResult<UserDTO>> CreateUser(NewUserDTO newUser)
     {
         var user = new User(newUser);
-        foreach (var groupId in newUser.GroupIds)
-        {
-            var group = await _appDbContext.Groups
-                .AsTracking()
-                .SingleOrDefaultAsync(g => g.Id == groupId);
-            if (group != null)
-            {
-                user.Groups.Add(group);
-            }
-        }
         _appDbContext.Users.Add(user);
         await _appDbContext.SaveChangesAsync();
 

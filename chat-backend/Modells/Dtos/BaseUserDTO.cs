@@ -2,8 +2,8 @@ namespace ChatApp.Models;
 
 public class BaseUserDTO
 {
-    public long Id { get; set; }
-    public string Name { get; set; }
+    public int Id { get; set; }
+    public string? Name { get; set; }
 
     public BaseUserDTO(User user)
     {
