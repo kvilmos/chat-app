@@ -10,6 +10,6 @@ public class UserDTO
     {
         Id = user.Id;
         Name = user.Name;
-        Groups = user.Groups.Select(t => new BaseGroupDTO(t)).ToList();
+        Groups = user.Groups.Select(g => new BaseGroupDTO(g)).ToList();
     }
 }

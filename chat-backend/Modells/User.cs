@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 
 namespace ChatApp.Models
 {
@@ -10,6 +11,9 @@ namespace ChatApp.Models
         public int Id { get; set; }
         [Required]
         public string? Name { get; set; }
+        [Required]
+        public string? PassowordHash { get; set; }
+
         public ICollection<Group> Groups { get; set; } = new List<Group>();
         public ICollection<GroupUserJoin> GroupsJoined { get; set; } = new List<GroupUserJoin>();
 
@@ -18,6 +22,7 @@ namespace ChatApp.Models
         public User(NewUserDTO newUser)
         {
             Name = newUser.Name;
+            PassowordHash = new PasswordHasher<User>().HashPassword(this, newUser.Password);
         }
     }
 }
