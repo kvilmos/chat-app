@@ -60,4 +60,34 @@ public class GroupController : ControllerBase
 
         return CreatedAtAction(nameof(GetGroups), new { id = group.Id }, new GroupDTO(group));
     }
+
+    [Authorize]
+    [HttpPost("{groupId}/join")]
+    public async Task<ActionResult<GroupDTO>> JoinGroups(int groupId)
+    {
+        var claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList();
+        var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = !string.IsNullOrEmpty(userIdStr) ? int.Parse(userIdStr) : 0;
+        if (userId == 0)
+        {
+            return Unauthorized();
+        }
+
+        var alreadyMember = await _appDbContext.GroupUserJoins
+            .AsTracking()
+            .SingleOrDefaultAsync(gu => gu.UserId == userId && gu.GroupId == groupId);
+        if (alreadyMember != null)
+        {
+            return Conflict("Already Joined");
+        }
+        var join = new GroupUserJoin
+        {
+            UserId = userId,
+            GroupId = groupId,
+        };
+        _appDbContext.GroupUserJoins.Add(join);
+        await _appDbContext.SaveChangesAsync();
+
+        return Ok();
+    }
 }
