@@ -1,0 +1,20 @@
+meta {
+  name: join group
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:5275/group/1/join
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer <TOKEN>
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
