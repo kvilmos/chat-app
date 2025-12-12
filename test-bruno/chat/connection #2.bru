@@ -1,0 +1,22 @@
+meta {
+  name: connection #2
+  type: ws
+  seq: 2
+}
+
+ws {
+  url: http://localhost:5275/chat?groupId=1
+  body: ws
+  auth: none
+}
+
+headers {
+  Authorization: Bearer <TOKEN>
+}
+
+body:ws {
+  name: message 1
+  content: '''
+    Message from User 2.
+  '''
+}

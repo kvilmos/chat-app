@@ -1,0 +1,26 @@
+meta {
+  name: read group messages
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:5275/message?groupId=1&page=1&latest=true
+  body: json
+  auth: inherit
+}
+
+params:query {
+  groupId: 1
+  page: 1
+  latest: true
+}
+
+headers {
+  Authorization: Bearer <TOKEN>
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

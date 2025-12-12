@@ -1,0 +1,20 @@
+meta {
+  name: list groups
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:5275/group
+  body: json
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer <TOKEN>
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

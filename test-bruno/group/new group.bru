@@ -1,0 +1,27 @@
+meta {
+  name: new group
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:5275/group
+  body: json
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer <TOKEN>
+}
+
+body:json {
+  {
+    "name":"New Chat Group",
+    "userIds":[]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
