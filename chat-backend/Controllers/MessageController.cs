@@ -32,12 +32,18 @@ public class MessageController : ControllerBase
         {
             return BadRequest();
         }
+        bool isMember = await _appDbContext.GroupUserJoins
+            .AnyAsync(ug => ug.GroupId == filter.GroupId && ug.UserId == userId);
+        if (!isMember)
+        {
+            return Unauthorized("Not a member of this group");
+        }
 
         return await _appDbContext.Messages
             .AsNoTracking()
             .Include(m => m.Sender)
             .Include(m => m.Group)
-            .Where(m => m.GroupId == filter.GroupId && m.SenderId == userId)
+            .Where(m => m.GroupId == filter.GroupId)
             .OrderByDescending(m => m.Date)
             .Skip((filter.Page - 1) * PAGE_NUMBER)
             .Take(10)
